@@ -1,0 +1,447 @@
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.Scanner;
+import java.util.Stack;
+
+/**
+ * SISTEMA DE GESTIÓN DE TAREAS
+ * Todo el proyecto en un solo archivo: Tarea, GestorTareas y Main.
+ * Para usarlo en NetBeans: crea un proyecto Java Application y
+ * reemplaza el contenido de tu clase principal con este archivo
+ * (o simplemente agrégalo a la carpeta src).
+ */
+
+/**
+ * Sistema de Gestión de Tareas
+ * Interfaz de consola que demuestra el uso de Pila, Cola y Lista.
+ */
+public class SistemaGestionTareas {
+
+    private static final Scanner sc = new Scanner(System.in);
+    private static final GestorTareas gestor = new GestorTareas();
+
+    public static void main(String[] args) {
+        // Fuerza salida en UTF-8 para que los acentos se vean bien en cualquier consola
+        System.setOut(new java.io.PrintStream(System.out, true, java.nio.charset.StandardCharsets.UTF_8));
+
+        int opcion;
+        do {
+            mostrarMenuPrincipal();
+            opcion = leerEntero("Selecciona una opción: ");
+            switch (opcion) {
+                case 1: menuPila(); break;
+                case 2: menuCola(); break;
+                case 3: menuLista(); break;
+                case 4: verTodasPendientes(); break;
+                case 0: System.out.println("\nSaliendo del sistema...");
+                    break;
+                default: System.out.println("\nOpción inválida.\n");
+            }
+        } while (opcion != 0);
+
+        sc.close();
+    }
+
+    // ================= MENÚ PRINCIPAL =================
+
+    private static void mostrarMenuPrincipal() {
+        System.out.println("=========================================");
+        System.out.println("   SISTEMA DE GESTIÓN DE TAREAS");
+        System.out.println("=========================================");
+        System.out.println("1. Gestionar tareas urgentes (Pila)");
+        System.out.println("2. Gestionar tareas programadas (Cola)");
+        System.out.println("3. Gestionar tareas por departamento (Lista)");
+        System.out.println("4. Ver todas las tareas pendientes (ordenadas)");
+        System.out.println("0. Salir");
+        System.out.println("=========================================");
+    }
+
+    // ================= PILA =================
+
+    private static void menuPila() {
+        int opcion;
+        do {
+            System.out.println("\n--- TAREAS URGENTES (PILA) ---");
+            System.out.println("1. Agregar tarea urgente (push)");
+            System.out.println("2. Atender/eliminar la tarea más urgente (pop)");
+            System.out.println("3. Ver la tarea más urgente sin eliminarla (peek)");
+            System.out.println("4. Ver todas las tareas de la pila");
+            System.out.println("0. Regresar");
+            opcion = leerEntero("Selecciona una opción: ");
+
+            switch (opcion) {
+                case 1:
+                    Tarea nueva = capturarTarea();
+                    gestor.pushUrgente(nueva);
+                    System.out.println("Tarea agregada a la pila.");
+                    break;
+                case 2:
+                    Tarea eliminada = gestor.popUrgente();
+                    if (eliminada == null) {
+                        System.out.println("La pila está vacía.");
+                    } else {
+                        System.out.println("Tarea atendida: " + eliminada);
+                    }
+                    break;
+                case 3:
+                    Tarea tope = gestor.peekUrgente();
+                    System.out.println(tope == null ? "La pila está vacía." : "Siguiente a atender: " + tope);
+                    break;
+                case 4:
+                    imprimirLista(gestor.verPila(), "Pila de tareas urgentes (tope primero)");
+                    break;
+                case 0:
+                    break;
+                default:
+                    System.out.println("Opción inválida.");
+            }
+        } while (opcion != 0);
+    }
+
+    // ================= COLA =================
+
+    private static void menuCola() {
+        int opcion;
+        do {
+            System.out.println("\n--- TAREAS PROGRAMADAS (COLA) ---");
+            System.out.println("1. Agregar tarea programada (enqueue)");
+            System.out.println("2. Atender/eliminar la siguiente tarea (dequeue)");
+            System.out.println("3. Ver la siguiente tarea sin eliminarla (front)");
+            System.out.println("4. Ver todas las tareas de la cola");
+            System.out.println("0. Regresar");
+            opcion = leerEntero("Selecciona una opción: ");
+
+            switch (opcion) {
+                case 1:
+                    Tarea nueva = capturarTarea();
+                    gestor.enqueueProgramada(nueva);
+                    System.out.println("Tarea agregada a la cola.");
+                    break;
+                case 2:
+                    Tarea eliminada = gestor.dequeueProgramada();
+                    if (eliminada == null) {
+                        System.out.println("La cola está vacía.");
+                    } else {
+                        System.out.println("Tarea atendida: " + eliminada);
+                    }
+                    break;
+                case 3:
+                    Tarea frente = gestor.frontProgramada();
+                    System.out.println(frente == null ? "La cola está vacía." : "Siguiente en la fila: " + frente);
+                    break;
+                case 4:
+                    imprimirLista(gestor.verCola(), "Cola de tareas programadas (frente primero)");
+                    break;
+                case 0:
+                    break;
+                default:
+                    System.out.println("Opción inválida.");
+            }
+        } while (opcion != 0);
+    }
+
+    // ================= LISTA =================
+
+    private static void menuLista() {
+        int opcion;
+        do {
+            System.out.println("\n--- TAREAS POR DEPARTAMENTO (LISTA) ---");
+            System.out.println("1. Agregar tarea (insert)");
+            System.out.println("2. Eliminar tarea por ID (delete)");
+            System.out.println("3. Buscar tarea por ID (find)");
+            System.out.println("4. Buscar tareas por departamento");
+            System.out.println("5. Ver todas las tareas de la lista");
+            System.out.println("0. Regresar");
+            opcion = leerEntero("Selecciona una opción: ");
+
+            switch (opcion) {
+                case 1:
+                    Tarea nueva = capturarTarea();
+                    gestor.insertEnLista(nueva);
+                    System.out.println("Tarea insertada en la lista.");
+                    break;
+                case 2:
+                    int idEliminar = leerEntero("ID de la tarea a eliminar: ");
+                    boolean ok = gestor.deleteDeLista(idEliminar);
+                    System.out.println(ok ? "Tarea eliminada." : "No se encontró una tarea con ese ID.");
+                    break;
+                case 3:
+                    int idBuscar = leerEntero("ID de la tarea a buscar: ");
+                    Tarea encontrada = gestor.findEnLista(idBuscar);
+                    System.out.println(encontrada == null ? "No se encontró la tarea." : encontrada);
+                    break;
+                case 4:
+                    System.out.print("Departamento a buscar: ");
+                    String depto = sc.nextLine();
+                    imprimirLista(gestor.findPorDepartamento(depto), "Tareas del departamento: " + depto);
+                    break;
+                case 5:
+                    imprimirLista(gestor.verLista(), "Lista completa de tareas por departamento");
+                    break;
+                case 0:
+                    break;
+                default:
+                    System.out.println("Opción inválida.");
+            }
+        } while (opcion != 0);
+    }
+
+    // ================= VISTA GENERAL =================
+
+    private static void verTodasPendientes() {
+        List<Tarea> todas = gestor.verTodasOrdenadas();
+        imprimirLista(todas, "Todas las tareas pendientes (ordenadas por urgencia y departamento)");
+    }
+
+    // ================= UTILIDADES =================
+
+    private static Tarea capturarTarea() {
+        System.out.print("Descripción de la tarea: ");
+        String descripcion = sc.nextLine();
+
+        System.out.print("Departamento: ");
+        String departamento = sc.nextLine();
+
+        int urgencia;
+        do {
+            urgencia = leerEntero("Nivel de urgencia (1=Baja, 2=Media, 3=Alta): ");
+        } while (urgencia < 1 || urgencia > 3);
+
+        return new Tarea(descripcion, departamento, urgencia);
+    }
+
+    private static void imprimirLista(List<Tarea> tareas, String titulo) {
+        System.out.println("\n--- " + titulo + " ---");
+        if (tareas.isEmpty()) {
+            System.out.println("(No hay tareas)");
+            return;
+        }
+        for (Tarea t : tareas) {
+            System.out.println(t);
+        }
+    }
+
+    private static int leerEntero(String mensaje) {
+        System.out.print(mensaje);
+        while (!sc.hasNextInt()) {
+            System.out.print("Ingresa un número válido: ");
+            sc.next();
+        }
+        int valor = sc.nextInt();
+        sc.nextLine(); // limpiar salto de línea pendiente
+        return valor;
+    }
+}
+
+/**
+ * Representa una tarea dentro del sistema de gestión.
+ * Se utiliza en las tres estructuras de datos: pila, cola y lista.
+ */
+class Tarea {
+
+    private static int contadorId = 1;
+
+    private final int id;
+    private String descripcion;
+    private String departamento;
+    private int nivelUrgencia; // 1 = baja, 2 = media, 3 = alta
+    private final LocalDateTime fechaRegistro;
+
+    public Tarea(String descripcion, String departamento, int nivelUrgencia) {
+        this.id = contadorId++;
+        this.descripcion = descripcion;
+        this.departamento = departamento;
+        this.nivelUrgencia = nivelUrgencia;
+        this.fechaRegistro = LocalDateTime.now();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public String getDepartamento() {
+        return departamento;
+    }
+
+    public void setDepartamento(String departamento) {
+        this.departamento = departamento;
+    }
+
+    public int getNivelUrgencia() {
+        return nivelUrgencia;
+    }
+
+    public void setNivelUrgencia(int nivelUrgencia) {
+        this.nivelUrgencia = nivelUrgencia;
+    }
+
+    public LocalDateTime getFechaRegistro() {
+        return fechaRegistro;
+    }
+
+    private String urgenciaTexto() {
+        switch (nivelUrgencia) {
+            case 3: return "ALTA";
+            case 2: return "MEDIA";
+            case 1: return "BAJA";
+            default: return "N/D";
+        }
+    }
+
+    @Override
+    public String toString() {
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        return String.format("#%-3d | %-30s | Depto: %-15s | Urgencia: %-5s | Registrada: %s",
+                id, descripcion, departamento, urgenciaTexto(), fechaRegistro.format(fmt));
+    }
+}
+
+/**
+ * Administra las tareas del sistema usando tres estructuras de datos:
+ *  - Pila (Stack)  -> tareas urgentes (LIFO)
+ *  - Cola (Queue)  -> tareas programadas (FIFO)
+ *  - Lista (List)  -> tareas por departamento (acceso aleatorio)
+ */
+class GestorTareas {
+
+    // 1. PILA: tareas urgentes, se atienden las más recientes primero
+    private final Stack<Tarea> pilaUrgentes = new Stack<>();
+
+    // 2. COLA: tareas programadas regularmente, primero en entrar, primero en salir
+    private final Queue<Tarea> colaProgramadas = new LinkedList<>();
+
+    // 3. LISTA: tareas con acceso aleatorio, consultables por departamento
+    private final List<Tarea> listaDepartamento = new ArrayList<>();
+
+    // ---------------------------------------------------------------
+    // OPERACIONES DE PILA (push, pop, peek)
+    // ---------------------------------------------------------------
+
+    public void pushUrgente(Tarea t) {
+        pilaUrgentes.push(t);
+    }
+
+    public Tarea popUrgente() {
+        if (pilaUrgentes.isEmpty()) {
+            return null;
+        }
+        return pilaUrgentes.pop();
+    }
+
+    public Tarea peekUrgente() {
+        if (pilaUrgentes.isEmpty()) {
+            return null;
+        }
+        return pilaUrgentes.peek();
+    }
+
+    public boolean pilaVacia() {
+        return pilaUrgentes.isEmpty();
+    }
+
+    public List<Tarea> verPila() {
+        return new ArrayList<>(pilaUrgentes);
+    }
+
+    // ---------------------------------------------------------------
+    // OPERACIONES DE COLA (enqueue, dequeue, front)
+    // ---------------------------------------------------------------
+
+    public void enqueueProgramada(Tarea t) {
+        colaProgramadas.offer(t);
+    }
+
+    public Tarea dequeueProgramada() {
+        return colaProgramadas.poll();
+    }
+
+    public Tarea frontProgramada() {
+        return colaProgramadas.peek();
+    }
+
+    public boolean colaVacia() {
+        return colaProgramadas.isEmpty();
+    }
+
+    public List<Tarea> verCola() {
+        return new ArrayList<>(colaProgramadas);
+    }
+
+    // ---------------------------------------------------------------
+    // OPERACIONES DE LISTA (insert, delete, find)
+    // ---------------------------------------------------------------
+
+    public void insertEnLista(Tarea t) {
+        listaDepartamento.add(t);
+    }
+
+    public boolean deleteDeLista(int id) {
+        Iterator<Tarea> it = listaDepartamento.iterator();
+        while (it.hasNext()) {
+            Tarea t = it.next();
+            if (t.getId() == id) {
+                it.remove();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Tarea findEnLista(int id) {
+        for (Tarea t : listaDepartamento) {
+            if (t.getId() == id) {
+                return t;
+            }
+        }
+        return null;
+    }
+
+    public List<Tarea> findPorDepartamento(String departamento) {
+        List<Tarea> resultado = new ArrayList<>();
+        for (Tarea t : listaDepartamento) {
+            if (t.getDepartamento().equalsIgnoreCase(departamento)) {
+                resultado.add(t);
+            }
+        }
+        return resultado;
+    }
+
+    public List<Tarea> verLista() {
+        return new ArrayList<>(listaDepartamento);
+    }
+
+    // ---------------------------------------------------------------
+    // VISTA CONSOLIDADA: todas las tareas pendientes ordenadas
+    // por urgencia y luego por departamento
+    // ---------------------------------------------------------------
+
+    public List<Tarea> verTodasOrdenadas() {
+        List<Tarea> todas = new ArrayList<>();
+        todas.addAll(pilaUrgentes);
+        todas.addAll(colaProgramadas);
+        todas.addAll(listaDepartamento);
+
+        todas.sort((a, b) -> {
+            int cmp = Integer.compare(b.getNivelUrgencia(), a.getNivelUrgencia()); // urgencia desc
+            if (cmp != 0) {
+                return cmp;
+            }
+            return a.getDepartamento().compareToIgnoreCase(b.getDepartamento());
+        });
+
+        return todas;
+    }
+}
