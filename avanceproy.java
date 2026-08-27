@@ -273,13 +273,17 @@ public class avanceproy extends JFrame {
         panel.setBorder(new EmptyBorder(12, 12, 12, 12));
         panel.setBackground(COLOR_PANEL);
 
+        // Se especifica FlowLayout para que no usen BorderLayout por defecto
         JPanel form = new HudPanel(COLOR_BUGS);
+        form.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
         form.setBackground(COLOR_BUGS_SUAVE);
         form.setBorder(bordeEstilizado("Nuevo bug critico", COLOR_BUGS));
         form.setOpaque(true);
+
         JTextField campoModulo = campoEstilizado(10);
         JTextField campoSeveridad = campoEstilizado(6);
         JTextField campoProgramador = campoEstilizado(10);
+
         form.add(etiqueta("Modulo afectado:"));
         form.add(campoModulo);
         form.add(etiqueta("Severidad:"));
@@ -360,13 +364,17 @@ public class avanceproy extends JFrame {
         panel.setBorder(new EmptyBorder(12, 12, 12, 12));
         panel.setBackground(COLOR_PANEL);
 
+        // Se asigna FlowLayout para evitar que el BorderLayout por defecto encime los componentes
         JPanel form = new HudPanel(COLOR_RENDER);
+        form.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
         form.setBackground(COLOR_RENDER_SUAVE);
         form.setBorder(bordeEstilizado("Nueva tarea de renderizado", COLOR_RENDER));
         form.setOpaque(true);
+
         JTextField campoAsset = campoEstilizado(10);
         JTextField campoTiempo = campoEstilizado(5);
         JTextField campoFormato = campoEstilizado(8);
+
         form.add(etiqueta("Nombre asset:"));
         form.add(campoAsset);
         form.add(etiqueta("Tiempo est (min):"));
@@ -447,7 +455,6 @@ public class avanceproy extends JFrame {
         panel.add(scroll, BorderLayout.CENTER);
         return panel;
     }
-
     // ===================== PANEL LISTA: CATALOGO =====================
 
     JPanel crearPanelCatalogo() {
@@ -455,16 +462,23 @@ public class avanceproy extends JFrame {
         panel.setBorder(new EmptyBorder(12, 12, 12, 12));
         panel.setBackground(COLOR_PANEL);
 
+        // Se asigna FlowLayout para evitar que el BorderLayout por defecto encime los componentes
         JPanel form = new HudPanel(COLOR_CATALOGO);
+        form.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
         form.setBackground(COLOR_CATALOGO_SUAVE);
         form.setBorder(bordeEstilizado("Nueva entidad del catalogo", COLOR_CATALOGO));
         form.setOpaque(true);
+
         JTextField campoNombre = campoEstilizado(10);
         JTextField campoTipo = campoEstilizado(8);
         JTextField campoNivel = campoEstilizado(4);
-        JCheckBox checkActivo = new JCheckBox("Activo", true);
+        
+        JCheckBox checkActivo = new JCheckBox("Estado activo", true);
         checkActivo.setFont(FUENTE_NORMAL);
         checkActivo.setBackground(COLOR_CATALOGO_SUAVE);
+        checkActivo.setForeground(COLOR_TEXTO_OSCURO);
+        checkActivo.setFocusPainted(false);
+
         form.add(etiqueta("Nombre:"));
         form.add(campoNombre);
         form.add(etiqueta("Tipo:"));
@@ -571,7 +585,6 @@ public class avanceproy extends JFrame {
         panel.add(scrollLista, BorderLayout.EAST);
         return panel;
     }
-
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
